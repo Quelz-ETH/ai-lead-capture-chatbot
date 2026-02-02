@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - AI Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#E63946',
+            'primary-dark': '#C5303C',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  
+  <!-- Login Screen -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p class="text-gray-500 mt-2">Enter password to access analytics</p>
+      </div>
+      
+      <form id="loginForm">
+        <input type="password" id="passwordInput" placeholder="Enter admin password" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition mb-4">
+        <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-medium transition">
+          Access Dashboard
+        </button>
+        <p id="loginError" class="text-red-500 text-sm text-center mt-3 hidden">Invalid password</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard (hidden by default) -->
+  <div id="dashboard" class="hidden">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+      <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-gray-900">AI Chatbot Analytics</h1>
+        <button id="logoutBtn" class="text-gray-500 hover:text-gray-700 text-sm font-medium">Logout</button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="container mx-auto px-6 py-8">
+      
+      <!-- Stats Cards -->
+      <div class="grid md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 mb-1">Total Leads</p>
+              <p id="totalLeads" class="text-3xl font-bold text-gray-900">-</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 mb-1">Chat Sessions</p>
+              <p id="totalSessions" class="text-3xl font-bold text-gray-900">-</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 mb-1">Today's Leads</p>
+              <p id="todayLeads" class="text-3xl font-bold text-gray-900">-</p>
+            </div>
+            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500 mb-1">Conversion Rate</p>
+              <p id="conversionRate" class="text-3xl font-bold text-gray-900">-</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Leads Table -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b flex justify-between items-center">
+          <h2 class="font-semibold text-gray-900">Recent Leads</h2>
+          <button id="refreshBtn" class="text-sm text-primary hover:text-primary-dark font-medium flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refresh
+          </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Messages</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody" class="divide-y divide-gray-100">
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Loading leads...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Admin password (in production, use Netlify Identity or proper auth)
+    const ADMIN_PASSWORD = 'admin123'; // Change this!
+
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboard = document.getElementById('dashboard');
+    const loginForm = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginError = document.getElementById('loginError');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    // Check if already logged in
+    if (sessionStorage.getItem('adminAuth') === 'true') {
+      showDashboard();
+    }
+
+    // Login form handler
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (passwordInput.value === ADMIN_PASSWORD) {
+        sessionStorage.setItem('adminAuth', 'true');
+        showDashboard();
+      } else {
+        loginError.classList.remove('hidden');
+        passwordInput.value = '';
+      }
+    });
+
+    // Logout handler
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('adminAuth');
+      location.reload();
+    });
+
+    // Refresh button
+    refreshBtn.addEventListener('click', loadAnalytics);
+
+    function showDashboard() {
+      loginScreen.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      loadAnalytics();
+    }
+
+    async function loadAnalytics() {
+      try {
+        const response = await fetch('/.netlify/functions/save-lead?action=stats', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + ADMIN_PASSWORD
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch stats');
+
+        const data = await response.json();
+
+        // Update stats
+        document.getElementById('totalLeads').textContent = data.totalLeads || 0;
+        document.getElementById('totalSessions').textContent = data.totalSessions || 0;
+        document.getElementById('todayLeads').textContent = data.todayLeads || 0;
+        
+        const convRate = data.totalSessions > 0 
+          ? Math.round((data.totalLeads / data.totalSessions) * 100) 
+          : 0;
+        document.getElementById('conversionRate').textContent = convRate + '%';
+
+        // Update leads table
+        const tbody = document.getElementById('leadsTableBody');
+        
+        if (!data.recentLeads || data.recentLeads.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No leads yet</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.recentLeads.map(lead => `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="font-medium text-gray-900">${escapeHtml(lead.name)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+              <a href="mailto:${escapeHtml(lead.email)}" class="hover:text-primary">${escapeHtml(lead.email)}</a>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+              <a href="tel:${escapeHtml(lead.phone)}" class="hover:text-primary">${escapeHtml(lead.phone)}</a>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">${lead.message_count || '-'}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-sm">
+              ${formatDate(lead.created_at)}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        console.error('Analytics error:', error);
+        document.getElementById('leadsTableBody').innerHTML = 
+          '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Failed to load data. Make sure the backend is configured.</td></tr>';
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+  </script>
+</body>
+</html>
