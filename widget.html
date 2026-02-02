@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Lead Capture Chatbot - NorthWest Georgia Business Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #E63946;
+      --primary-dark: #C5303C;
+      --accent: #F4A261;
+      --bg-light: #F8F9FA;
+      --bg-dark: #1D1D1F;
+      --text-dark: #1D1D1F;
+      --text-light: #F8F9FA;
+      --border: #E5E7EB;
+      --shadow: rgba(230, 57, 70, 0.15);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #F8F9FA 0%, #E5E7EB 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .demo-container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .demo-info {
+      background: white;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    }
+
+    .demo-info h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 48px;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .demo-info h2 {
+      font-size: 24px;
+      color: var(--primary);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    .demo-info p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #6B7280;
+      margin-bottom: 16px;
+    }
+
+    .features {
+      margin-top: 32px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      font-size: 16px;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    /* Chat Widget */
+    .chat-widget-container {
+      position: relative;
+    }
+
+    .chat-widget {
+      width: 400px;
+      height: 600px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 24px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chat-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .business-name {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .business-subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #4ADE80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #FAFBFC;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      animation: messageSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.bot {
+      align-items: start;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .bot .avatar {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+    }
+
+    .user .avatar {
+      background: #E5E7EB;
+      color: var(--text-dark);
+    }
+
+    .message-content {
+      max-width: 75%;
+    }
+
+    .message-bubble {
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .bot .message-bubble {
+      background: white;
+      color: var(--text-dark);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .user .message-bubble {
+      background: var(--primary);
+      color: white;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 4px;
+      padding: 0 8px;
+    }
+
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .quick-reply {
+      background: white;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-reply:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 14px 18px;
+      background: white;
+      border-radius: 18px;
+      width: fit-content;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #9CA3AF;
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .chat-input {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      background: white;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chat-input input {
+      flex: 1;
+      border: 2px solid var(--border);
+      padding: 14px 18px;
+      border-radius: 24px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .chat-input input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
+    }
+
+    .send-button {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .powered-by {
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #9CA3AF;
+      background: #FAFBFC;
+      border-top: 1px solid var(--border);
+    }
+
+    .powered-by strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    @media (max-width: 968px) {
+      .demo-container {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-widget {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .demo-info h1 {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="demo-info">
+      <h1>Convert Visitors into Customers 24/7</h1>
+      <h2>AI-Powered Lead Capture for NorthWest Georgia Businesses</h2>
+      <p>Never miss another lead. Our AI chatbot qualifies prospects, books appointments, and captures contact information while you sleep.</p>
+      
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text"><strong>Instant Response</strong> - Engages visitors in under 3 seconds</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text"><strong>Lead Qualification</strong> - Asks the right questions automatically</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text"><strong>Calendar Integration</strong> - Books appointments directly into your calendar</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text"><strong>CRM Sync</strong> - Automatically adds leads to your system</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text"><strong>SMS Follow-up</strong> - Nurtures leads with automated sequences</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text"><strong>Analytics Dashboard</strong> - Track conversions and ROI in real-time</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-widget-container">
+      <div class="chat-widget">
+        <div class="chat-header">
+          <div class="header-content">
+            <div class="business-name">Rome Roofing & Construction</div>
+            <div class="business-subtitle">Expert Roofing Services</div>
+            <div class="status-indicator">
+              <span class="status-dot"></span>
+              <span>AI Assistant Online</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot">
+            <div class="avatar">AI</div>
+            <div class="message-content">
+              <div class="message-bubble">
+                Hi there! 👋 Welcome to Rome Roofing & Construction. I'm here to help you get started on your roofing project. What brings you here today?
+              </div>
+              <div class="message-time">Just now</div>
+              <div class="quick-replies">
+                <button class="quick-reply">Need a roof repair</button>
+                <button class="quick-reply">Full roof replacement</button>
+                <button class="quick-reply">Get a quote</button>
+                <button class="quick-reply">Emergency service</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <input type="text" placeholder="Type your message..." id="messageInput">
+          <button class="send-button" id="sendButton">➤</button>
+        </div>
+
+        <div class="powered-by">
+          Powered by <strong>FloydPolkBartow.com</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+
+    let conversationStage = 'initial';
+    let userData = {
+      name: null,
+      phone: null,
+      email: null,
+      service: null,
+      details: null,
+      address: null
+    };
+
+    // Disable old quick replies when new ones appear
+    function disableOldQuickReplies() {
+      const allQuickReplies = chatMessages.querySelectorAll('.quick-replies');
+      allQuickReplies.forEach((container, index) => {
+        if (index < allQuickReplies.length - 1) {
+          container.querySelectorAll('.quick-reply').forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+          });
+        }
+      });
+    }
+
+    // Validate phone number (basic validation)
+    function isValidPhone(phone) {
+      const cleaned = phone.replace(/\D/g, '');
+      return cleaned.length >= 10;
+    }
+
+    // Validate email
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Format current time
+    function getCurrentTime() {
+      const now = new Date();
+      return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    function addMessage(text, isUser = false, hasQuickReplies = false, replies = []) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = isUser ? 'U' : 'AI';
+      
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+      
+      const time = document.createElement('div');
+      time.className = 'message-time';
+      time.textContent = getCurrentTime();
+      
+      content.appendChild(bubble);
+      content.appendChild(time);
+      
+      if (hasQuickReplies && replies.length > 0) {
+        const quickRepliesDiv = document.createElement('div');
+        quickRepliesDiv.className = 'quick-replies';
+        
+        replies.forEach(reply => {
+          const button = document.createElement('button');
+          button.className = 'quick-reply';
+          button.textContent = reply;
+          button.addEventListener('click', (e) => handleQuickReply(reply, e));
+          quickRepliesDiv.appendChild(button);
+        });
+        
+        content.appendChild(quickRepliesDiv);
+      }
+      
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(content);
+      
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      // Disable previous quick replies
+      if (!isUser) {
+        disableOldQuickReplies();
+      }
+    }
+
+    function showTyping() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message bot';
+      typingDiv.id = 'typing';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = 'AI';
+      
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      
+      const indicator = document.createElement('div');
+      indicator.className = 'typing-indicator';
+      indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      
+      content.appendChild(indicator);
+      typingDiv.appendChild(avatar);
+      typingDiv.appendChild(content);
+      
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+      const typing = document.getElementById('typing');
+      if (typing) typing.remove();
+    }
+
+    // Capture and log lead data (in production, this would send to your CRM/backend)
+    function captureLead() {
+      console.log('🎯 LEAD CAPTURED:', userData);
+      
+      // In production, you would send this to your backend:
+      // fetch('/api/leads', { method: 'POST', body: JSON.stringify(userData) });
+      
+      // For demo, show in console
+      console.table(userData);
+      
+      // Store in localStorage for demo persistence
+      const leads = JSON.parse(localStorage.getItem('capturedLeads') || '[]');
+      leads.push({ ...userData, timestamp: new Date().toISOString() });
+      localStorage.setItem('capturedLeads', JSON.stringify(leads));
+    }
+
+    function getBotResponse(userMessage) {
+      const lower = userMessage.toLowerCase().trim();
+      
+      // Stage: Awaiting Name
+      if (conversationStage === 'awaiting_name') {
+        // Check if it looks like a name (not too short, not just numbers)
+        if (userMessage.length < 2 || /^\d+$/.test(userMessage)) {
+          return {
+            text: "I didn't quite catch that. Could you please tell me your full name?",
+            followUp: null
+          };
+        }
+        userData.name = userMessage;
+        conversationStage = 'awaiting_phone';
+        return {
+          text: `Great to meet you, ${userData.name}! 👋\n\nWhat's the best phone number to reach you at?`,
+          followUp: null
+        };
+      }
+      
+      // Stage: Awaiting Phone
+      if (conversationStage === 'awaiting_phone') {
+        if (!isValidPhone(userMessage)) {
+          return {
+            text: "That doesn't look like a valid phone number. Please enter a 10-digit phone number (e.g., 555-123-4567).",
+            followUp: null
+          };
+        }
+        userData.phone = userMessage;
+        conversationStage = 'awaiting_email';
+        return {
+          text: "Perfect! And what's your email address? We'll send you a confirmation and any follow-up information there.",
+          followUp: null
+        };
+      }
+      
+      // Stage: Awaiting Email
+      if (conversationStage === 'awaiting_email') {
+        if (!isValidEmail(userMessage)) {
+          return {
+            text: "That doesn't appear to be a valid email address. Please enter a valid email (e.g., john@example.com).",
+            followUp: null
+          };
+        }
+        userData.email = userMessage;
+        conversationStage = 'awaiting_address';
+        return {
+          text: "Almost done! What's your property address? This helps us prepare an accurate estimate.",
+          followUp: ["I'll provide later", "Same as my home"]
+        };
+      }
+      
+      // Stage: Awaiting Address
+      if (conversationStage === 'awaiting_address') {
+        userData.address = userMessage;
+        conversationStage = 'complete';
+        
+        // Capture the lead!
+        captureLead();
+        
+        const serviceType = userData.service === 'repair' ? 'roof repair' :
+                          userData.service === 'replacement' ? 'roof replacement' :
+                          userData.service === 'emergency' ? 'emergency roofing service' :
+                          'roofing project';
+        
+        return {
+          text: `🎉 Excellent! I've got everything I need, ${userData.name}!\n\nHere's what happens next:\n\n✅ Your information has been sent to our team\n✅ You'll receive a confirmation email at ${userData.email}\n✅ A roofing specialist will call you at ${userData.phone} within 2 hours to discuss your ${serviceType}\n\nIs there anything else you'd like to know while we're chatting?`,
+          followUp: ["When can you start?", "Do you offer financing?", "What's your warranty?", "That's all, thanks!"]
+        };
+      }
+      
+      // Stage: Initial - Service Selection
+      if (conversationStage === 'initial') {
+        if (lower.includes('repair') || lower.includes('fix') || lower.includes('leak')) {
+          userData.service = 'repair';
+          conversationStage = 'service_details';
+          return {
+            text: "I can definitely help with roof repairs! 🔧\n\nTo give you the best service, can you tell me more about the issue? What are you experiencing?",
+            followUp: ["Leaking roof", "Missing shingles", "Storm damage", "Not sure - need inspection"]
+          };
+        }
+        
+        if (lower.includes('replace') || lower.includes('replacement') || lower.includes('new roof') || lower.includes('full')) {
+          userData.service = 'replacement';
+          conversationStage = 'service_details';
+          return {
+            text: "A full roof replacement is a great investment in your home! 🏠\n\nWhat type of roofing material interests you? We specialize in several options.",
+            followUp: ["Asphalt shingles", "Metal roofing", "Tile roofing", "Need recommendation"]
+          };
+        }
+        
+        if (lower.includes('quote') || lower.includes('price') || lower.includes('cost') || lower.includes('estimate')) {
+          userData.service = 'quote';
+          conversationStage = 'service_details';
+          return {
+            text: "I'd love to help you get a free quote! 📋\n\nTo give you an accurate estimate, what's the approximate size of your roof? (Don't worry if you're not sure)",
+            followUp: ["Small (under 1,500 sq ft)", "Medium (1,500-2,500 sq ft)", "Large (over 2,500 sq ft)", "Not sure"]
+          };
+        }
+        
+        if (lower.includes('emergency') || lower.includes('urgent') || lower.includes('asap') || lower.includes('now')) {
+          userData.service = 'emergency';
+          conversationStage = 'service_details';
+          return {
+            text: "I understand this is urgent! 🚨 Our emergency team is available 24/7.\n\nCan you briefly describe the emergency so we can prioritize appropriately?",
+            followUp: ["Active leak", "Structural damage", "Storm damage", "Other emergency"]
+          };
+        }
+        
+        // Default for initial stage - ask what they need
+        return {
+          text: "Thanks for reaching out! I'm here to help you with all your roofing needs.\n\nWhat can I help you with today?",
+          followUp: ["Need a roof repair", "Full roof replacement", "Get a free quote", "Emergency service"]
+        };
+      }
+      
+      // Stage: Service Details - Collect more info then move to lead capture
+      if (conversationStage === 'service_details') {
+        userData.details = userMessage;
+        conversationStage = 'awaiting_name';
+        return {
+          text: `Perfect, I've noted that down! 📝\n\nTo get you scheduled with one of our roofing specialists, I just need a few quick details.\n\nFirst, what's your name?`,
+          followUp: null
+        };
+      }
+      
+      // Stage: Complete - Answer follow-up questions
+      if (conversationStage === 'complete') {
+        if (lower.includes('start') || lower.includes('timeline') || lower.includes('when') || lower.includes('how long')) {
+          return {
+            text: "Great question! ⏰\n\nMost projects start within 3-5 business days after the initial consultation. Emergency repairs can often begin same-day or next-day.\n\nYour specialist will give you exact timing when they call!",
+            followUp: ["Sounds good!", "What about financing?", "Tell me about warranties"]
+          };
+        }
+        
+        if (lower.includes('financ') || lower.includes('payment') || lower.includes('pay') || lower.includes('credit')) {
+          return {
+            text: "Yes! We offer flexible financing options 💳\n\n• 0% APR for qualified buyers\n• Monthly payments as low as $99/month\n• Quick approval process\n\nYour specialist will go over all the options when they call.",
+            followUp: ["Perfect!", "What's your warranty?", "That's all, thanks!"]
+          };
+        }
+        
+        if (lower.includes('warrant') || lower.includes('guarantee')) {
+          return {
+            text: "We stand behind our work! 🛡️\n\n• 10-year workmanship warranty on all installations\n• Manufacturer warranties on materials (25-50 years)\n• Written guarantee on every project\n\nYou'll get all the details in writing!",
+            followUp: ["Great!", "Anything else I should know?", "That's all, thanks!"]
+          };
+        }
+        
+        if (lower.includes('thank') || lower.includes('all') || lower.includes('done') || lower.includes('bye') || lower.includes('good')) {
+          return {
+            text: `You're very welcome, ${userData.name}! 😊\n\nWe're excited to help with your roofing project. Remember, you'll hear from us within 2 hours.\n\nHave a wonderful day!`,
+            followUp: null
+          };
+        }
+        
+        // Generic follow-up for complete stage
+        return {
+          text: "Is there anything specific about our services you'd like to know more about?",
+          followUp: ["When can you start?", "Do you offer financing?", "What's your warranty?", "That's all, thanks!"]
+        };
+      }
+      
+      // Fallback - shouldn't normally reach here
+      conversationStage = 'initial';
+      return {
+        text: "I'm here to help! What roofing service can I assist you with today?",
+        followUp: ["Need a roof repair", "Full roof replacement", "Get a free quote", "Emergency service"]
+      };
+    }
+
+    function handleQuickReply(text, event) {
+      // Disable the clicked button immediately
+      event.target.disabled = true;
+      event.target.style.opacity = '0.5';
+      
+      addMessage(text, true);
+      
+      setTimeout(() => {
+        showTyping();
+        
+        setTimeout(() => {
+          removeTyping();
+          const response = getBotResponse(text);
+          addMessage(response.text, false, response.followUp !== null && response.followUp.length > 0, response.followUp || []);
+        }, 800 + Math.random() * 700); // Variable typing time for realism
+      }, 200);
+    }
+
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+      
+      addMessage(text, true);
+      messageInput.value = '';
+      
+      setTimeout(() => {
+        showTyping();
+        
+        setTimeout(() => {
+          removeTyping();
+          const response = getBotResponse(text);
+          addMessage(response.text, false, response.followUp !== null && response.followUp.length > 0, response.followUp || []);
+        }, 800 + Math.random() * 700); // Variable typing time for realism
+      }, 200);
+    }
+
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Attach listeners to initial quick reply buttons
+    document.querySelectorAll('.quick-reply').forEach(button => {
+      button.addEventListener('click', (e) => handleQuickReply(button.textContent, e));
+    });
+
+    // Log instructions for demo
+    console.log('🤖 AI Lead Capture Chatbot Ready!');
+    console.log('📊 View captured leads: JSON.parse(localStorage.getItem("capturedLeads"))');
+  </script>
+</body>
+</html>
